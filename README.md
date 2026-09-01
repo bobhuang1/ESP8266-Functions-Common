@@ -1,63 +1,56 @@
-# ESP8266-Garfield-Common
+# ESP8266-Functions-Common
 
-Shared ESP8266/Arduino helper code used across several of this account's
-"Garfield" clock/weather-station/monitor sketches (WiFi connection with
-fallback SSIDs or WiFiManager captive portal, buzzer control, backlight
-dimming from a photoresistor, a bitmap-font weather icon set, plain-SMTP mail
-alerts, and a simple fleet-configuration mechanism that reads settings from a
-remote server).
+A collection of small, focused Arduino libraries factored out of code that
+used to be duplicated (often with subtly different, independently-drifted
+signatures) across this account's ESP8266/Arduino sketches. Originally one
+monolithic `GarfieldCommon.h`/`.cpp` file (this repo used to be named
+`ESP8266-Garfield-Common`); split up here so a sketch only needs to pull in
+the pieces it actually uses.
 
-## Before you use this
+## Libraries
 
-**Every credential and server address in this file is a placeholder.**
-Replace them with your own before flashing a device:
+| Library | What it does | Used by |
+|---|---|---|
+| [StringHelpers](StringHelpers) | `String` → `char*` conversion for display/Serial APIs | every sketch |
+| [AlarmBeeper](AlarmBeeper) | Buzzer short/long/off/pattern beeps, either wiring polarity | every sketch with a buzzer |
+| [MathQuizGenerator](MathQuizGenerator) | Random arithmetic question generator | the MathToy sketches |
+| [BacklightController](BacklightController) | Photoresistor-based auto-dimming backlight | sketches with a backlight pin |
+| [WiFiMultiConnect](WiFiMultiConnect) | Multi-SSID-with-fallback WiFi connect, or WiFiManager portal | every WiFi sketch |
+| [WeatherDisplayHelpers](WeatherDisplayHelpers) | Meteocons icon fonts, day/night icon pick, wind-direction translation | weather-display sketches |
+| [DeviceFleetClient](DeviceFleetClient) | Client for a small custom device-fleet config/logging/OTA backend | the piano humidity controller |
+| [BootSplashBitmap](BootSplashBitmap) | The boot splash bitmap several sketches show on power-up | sketches with the Garfield splash |
 
-| In `GarfieldCommon.h` / `GarfieldCommon.cpp` | Replace with |
-|---|---|
-| `WEATHERAPI_APP_ID` | Your [WeatherAPI.com](https://www.weatherapi.com/) key |
-| `WIFI_HOME_SSID` / `WIFI_HOME_PWD` | Your WiFi network name(s)/password(s) |
-| `WIFI_TUNNEL_SSID` / `WIFI_TUNNEL_PWD` | An alternate/tunnel network, if you use the `isTunnel` mode |
-| `MOTHER_SERVER` / `SETTINGS_SERVER` | Your own device-fleet settings backend, if you use `readMother`/`readValueWebSite`/etc. - otherwise you can remove those calls from your sketch entirely |
-| `SMTP_SERVER` / `SMTP_AUTH_LOGIN_USER_BASE64` / `SMTP_AUTH_LOGIN_PASSWORD_BASE64` / `SMTP_FROM_ADDRESS` | Your own SMTP relay, if you use `SMTPSend` - see the security note below first |
+## Installing
 
-An earlier version of this file had real values committed for all of the
-above; they've been replaced with placeholders and the exposed WiFi/SMTP/API
-credentials should be treated as compromised - rotate them if you were
-reusing this exact code.
+Each subfolder here is a self-contained Arduino library (`library.properties`
++ `src/`). Copy whichever ones you need into your Arduino `libraries/`
+folder (e.g. `Documents/Arduino/libraries/StringHelpers/`), or clone this
+whole repo there and it'll show up as several libraries at once.
 
-## Security notes
+The consuming sketches in this account currently **vendor** copies of the
+specific libraries they need directly into their own repo (so each sketch
+repo is self-contained and buildable on its own without also cloning this
+one) - see each sketch's README for exactly which ones. If you update a
+library here, re-copy its `src/` files into any sketch that vendors it.
 
-- **Prefer `USE_WIFI_MANAGER`** (`connectWIFI(true, ...)`) over hardcoding
-  WiFi credentials in source at all - it puts up a captive config portal on
-  first boot instead. The hardcoded-SSID-list path exists for headless
-  devices that can't use a captive portal, and should never contain real
-  credentials in source you intend to publish or share.
-- **`SMTPSendMail` sends SMTP AUTH LOGIN credentials over a plain,
-  unencrypted `WiFiClient` connection** - no TLS. Base64 is an encoding, not
-  encryption; anyone on the network path can decode it. Most SMTP providers
-  require STARTTLS/implicit TLS today, which this hand-rolled client doesn't
-  implement. For anything beyond a private LAN with a mail server you
-  control, use a library with TLS support (e.g.
+## What got dropped, and why
+
+A few things from the old `GarfieldCommon` were **not** carried forward,
+because no current sketch in this account actually calls them (verified by
+grepping every `.ino` here for each function name before dropping it):
+
+- **SMTP mailer** (`SMTPSend`/`SMTPSendMail`/`SMTPReceive`/`SMTPFail`) - sent
+  auth credentials over an unencrypted connection with no TLS support, and
+  nothing currently calls it. Available in this repo's git history if you
+  need it for another project, but consider a TLS-capable library (e.g.
   [ESP-Mail-Client](https://github.com/mobizt/ESP-Mail-Client)) instead.
-- The fleet-configuration mechanism (`readMother`, `readValueWebSite`,
-  `writeDataWebSite`, etc.) talks to a plain-HTTP backend with no
-  authentication beyond the device's MAC address/serial number in the URL.
-  Fine for a private hobby fleet on a network you trust; not something to
-  expose on the public internet as-is.
+- **SPIFFS poem reader** (`convertPoemNumberToFileName`, `readPoemFromSPIFFS`)
+  and **timer-settings-website client** (`readTimerSettingsSPIFFS`,
+  `readTimerWebSite`) - tied to features (a poem-of-the-day display, a
+  "Blynk Relay" project) not present in any current sketch.
+- `activeSymbole`/`inactiveSymbole` bitmap arrays and the unused
+  `weatherBeginHour`/`weatherEndHour` constants - never referenced anywhere.
 
-## Weather icons
-
-`Meteocon21`/`Meteocon36` are the ThingPulse/squix78-style "Meteocons"
-bitmap fonts (u8g2 font format) used by this account's ESP8266 weather
-sketches to draw condition icons. `chooseMeteocon()` picks the day or night
-glyph from a 2-character icon-pair string (see
-[esp8266-weather-WeatherApi](https://github.com/bobhuang1/esp8266-weather-WeatherApi)'s
-`getMeteoconIcon()` for how those pairs are produced from a weather
-condition code).
-
-## The `garfield` bitmap
-
-`GarfieldCommon.h` embeds a pre-converted C byte array (`garfield[]`) used as
-a boot splash screen (`display.drawXBM(31, 0, 66, 64, garfield)`). The source
-image and other icons used across these sketches (mute/speaker/nuclear
-symbols) live in [GarfieldXBM](https://github.com/bobhuang1/GarfieldXBM).
+If one of your own private sketches depends on any of these, they're still
+in this repo's git history before the split - `git log --all --oneline` /
+`git show <commit>:GarfieldCommon.cpp` will find them.
