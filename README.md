@@ -50,6 +50,11 @@ grepping every `.ino` here for each function name before dropping it):
   "Blynk Relay" project) not present in any current sketch.
 - `activeSymbole`/`inactiveSymbole` bitmap arrays and the unused
   `weatherBeginHour`/`weatherEndHour` constants - never referenced anywhere.
+- `listSPIFFSFiles()` - a pure debug convenience (prints the SPIFFS file
+  listing to Serial at boot, and only when `DEBUG` is defined) called by two
+  sketches, but it didn't fit thematically into any of the 8 libraries
+  above. Each of those two sketches' setup() just doesn't print the listing
+  anymore; nothing else depended on it running.
 
 If one of your own private sketches depends on any of these, they're still
 in this repo's git history before the split - `git log --all --oneline` /
