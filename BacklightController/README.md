@@ -29,11 +29,3 @@ brightness threshold to match your specific photoresistor/enclosure;
 `turnOff(minimumLevel)` forces a fixed dim level regardless of the sensor
 (e.g. for a scheduled night-time dim). `selfTest()` ramps through the full
 PWM range once, useful as a visible power-on check.
-
-## Migrating from the old per-sketch copies
-
-Replaces the `initializeBackLightArray`/`adjustBacklight`/
-`turnOffBacklight`/`selfTestBacklight` free functions (which took a global
-`int[10]` array by reference at every call site) with one class that owns
-its own state - `begin()` replaces `initializeBackLightArray`, `update()`
-replaces `adjustBacklight`.

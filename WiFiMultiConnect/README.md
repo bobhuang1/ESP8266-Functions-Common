@@ -2,8 +2,8 @@
 
 Connects an ESP8266 to WiFi using either a small fallback list of known
 networks, or a [WiFiManager](https://github.com/tzapu/WiFiManager) captive
-config portal - plus the tiny build-timestamp/NTP constants nearly every
-sketch in this account defines right after connecting.
+config portal - plus small build-timestamp/NTP constants commonly needed
+right after connecting.
 
 ## Usage
 
@@ -34,12 +34,3 @@ there, and WiFiManager stores them in flash for subsequent boots. This is
 the better option whenever you don't need multiple hardcoded fallback
 networks, since it means no WiFi password ever needs to live in your source
 code at all.
-
-## Migrating from the old per-sketch copies
-
-Replaces the `connectWIFI` free function (and, in one sketch, an inlined
-copy of the same logic that was never factored into a function at all) with
-two clearly-named functions - `connectWiFi` for the fixed-list case,
-`connectWiFiWithManager` for the portal case - instead of one function with
-a `USE_WIFI_MANAGER` boolean silently switching between two different
-credential sources.

@@ -7,8 +7,7 @@ needing to reflash any device to change its settings or point it at a new
 server.
 
 This talks to a backend **you host yourself**; it's not a public API. You'll
-need to implement the endpoints below (any web stack works - the original
-was plain PHP on shared hosting).
+need to implement the endpoints below (any web stack works).
 
 ## The two servers
 
@@ -72,17 +71,13 @@ void loop() {
 }
 ```
 
-## Migrating from the old per-sketch copies
+## Design notes
 
-`readValueWebSite` used to take **18 separate output parameters by
-reference** - genuinely hard to call correctly. It's now one
-`DeviceFleetSettings` struct passed by reference, and the settings-server
-address/port/base-URL/bootstrap-resolution state that used to live in a
-`SettingsServerStruct` you had to manage yourself now lives inside the
-`DeviceFleetClient` instance.
+Settings are read into a single `DeviceFleetSettings` struct passed by
+reference; the settings-server address/port/base-URL and
+bootstrap-resolution state live inside the `DeviceFleetClient` instance, so
+callers don't need to track connection state themselves.
 
-Also fixed: the original's HTTP-response-parser checked the status line for
-the literal string `"1.1 200"` even though the request itself is sent as
-`HTTP/1.0` - it happened to work because most servers respond `HTTP/1.1`
-regardless of the request version, but it's fragile. Now matches `" 200 "`
-generically.
+The HTTP response parser matches the status line against `" 200 "`
+generically, rather than a literal HTTP-version-specific string, since a
+server may respond with a different HTTP version than the client requested.
