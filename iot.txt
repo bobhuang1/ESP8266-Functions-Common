@@ -1,0 +1,8 @@
+your-settings-server.example.com
+81
+/IOT/
+readsetting.html?mac=
+readtimer.html?serial=
+writeboot.html?serial=
+writedata.html?serial=
+bin/
