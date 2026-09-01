@@ -20,11 +20,3 @@ glyph) - see [esp8266-weather-WeatherApi](https://github.com/bobhuang1/esp8266-w
 `getMeteoconIcon()` for how those pairs are produced from a weather
 condition code - and picks whichever is appropriate for the current local
 time (day: 6:00-18:00).
-
-## Migrating from the old per-sketch copies
-
-Factored out of the old monolithic `GarfieldCommon.h`/`.cpp` (`Meteocon21`,
-`Meteocon36`, `chooseMeteocon` -> `chooseMeteoconChar`,
-`windDirectionTranslate` -> `translateWindDirectionToChinese`) so weather
-sketches don't need to pull in the WiFi/backlight/fleet-client code they
-don't use just to get the icon font.

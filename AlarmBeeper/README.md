@@ -22,11 +22,3 @@ beepPattern(ALARM_PIN, ACTIVE_HIGH, 1, 1, 0);   // single 1ms click (e.g. Geiger
 
 beep(ALARM_PIN, ACTIVE_HIGH, 500);    // any custom duration
 ```
-
-## Migrating from the old per-sketch copies
-
-This replaces `shortBeep`/`longBeep`/`noBeep`/`wrongBeep`/`shortGeigerBeep`,
-which were duplicated with slightly different signatures across several
-sketches (some took `(pin, activeHigh)`, some took just `(pin)` and baked the
-polarity into a compile-time `#ifdef USE_HIGH_ALARM`). Every call site now
-passes both parameters explicitly.
