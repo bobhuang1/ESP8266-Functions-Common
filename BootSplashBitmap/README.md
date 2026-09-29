@@ -15,3 +15,9 @@ display.sendBuffer();
 
 Source image, plus a few other small status icons for OLED sketches:
 [GarfieldXBM](https://github.com/bobhuang1/GarfieldXBM).
+
+## Copyright note
+
+The bitmap depicts Garfield, a trademark of and © Paws, Inc., converted to XBM
+for personal, non-commercial hobby use only. See
+[GarfieldXBM](https://github.com/bobhuang1/GarfieldXBM).
