@@ -32,3 +32,8 @@ ones they need directly into their own repo, so each sketch stays
 self-contained and buildable on its own without also cloning this one - see
 a consuming sketch's README for an example. If you update a library here,
 re-copy its `src/` files into any project that vendors it.
+
+
+## License
+
+This project is free software, released under the **GNU General Public License v3.0**. You may redistribute and/or modify it under those terms; see [LICENSE.md](LICENSE.md) for the full text.
