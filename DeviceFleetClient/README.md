@@ -9,6 +9,24 @@ server.
 This talks to a backend **you host yourself**; it's not a public API. You'll
 need to implement the endpoints below (any web stack works).
 
+## Security warning
+
+Everything here travels over **plain, unauthenticated HTTP**: the bootstrap file, the
+per-device settings (including `token` and `alarmEmailAddress`), and the OTA firmware
+URL. Anyone who can tamper with that traffic - a hostile Wi-Fi network, a DNS hijack, or
+whoever controls the bootstrap host - can repoint the fleet at their own server and push
+their own firmware to every device that follows the usage example below. The MAC address
+is the only key used to fetch a device's settings.
+
+Before relying on this outside a trusted LAN: serve both servers over HTTPS with a pinned
+certificate, enable the ESP8266 core's signed OTA updates (`Updater` signing with a public
+key compiled into the firmware), and authenticate settings requests with a per-device
+secret rather than the MAC address.
+
+`readSettings()` returns `false` and leaves `settings` unchanged when the server is
+unreachable or the reply is not a complete 20-line record, so a network blip can no
+longer zero the device's configuration.
+
 ## The two servers
 
 - **Bootstrap server**: one static file (see [iot.txt.example](iot.txt.example)), fetched on every `readSettings()`
